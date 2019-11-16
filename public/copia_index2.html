@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app">
+        {{ message }}
+
+        <div>
+            <h1>Items</h1>
+            <input class="" type="text" placeholder="buscar" v-on:keyup.enter="buscar" v-model="busqueda">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <td>ID</td>
+                        <td>Item Name</td>
+                        <td>Poblacion</td>
+                        <td>Saldo</td>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td>
+                        </td>
+                        <td> <input class="" type="text" placeholder="Name" v-model="username">
+                        </td>
+                        <td> <input class="" type="text" placeholder="Poblacion" v-model="userpoblacion">
+                        </td>
+                        <td> <input class="" type="text" placeholder="saldo" v-model="usersaldo">
+                        </td>
+                        <td><button @click="save">Agregar</button></td>
+                    </tr>
+                    <tr v-for="item in items" :key="item._id">
+                        <td>{{ item.id }}</td>
+                        <td>{{ item.nombre }}</td>
+                        <td>{{ item.poblacion }}</td>
+                        <td>{{ item.saldo }}</td>
+
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+</body>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            message: 'Hello Vue!',
+            items: [],
+            busqueda: '',
+            username: '',
+            userpoblacion: '',
+            usersaldo: ''
+        },
+        created: function () {
+            this.listar()
+        },
+        methods: {
+            listar: function () {
+                axios.get('http://173.249.39.9:3000/api/listado')
+                    .then(res => {
+                        this.items = res.data
+                    })
+            },
+            buscar: function () {
+                if (this.busqueda != '') {
+                    axios.get('http://173.249.39.9:3000/api/buscar/' + this.busqueda)
+                        .then(res => {
+                            this.items = res.data
+                        })
+                } else {
+                    axios.get('http://173.249.39.9:3000/api/listado')
+                        .then(res => {
+                            this.items = res.data
+                        })
+                }
+
+            },
+            save: function () {
+                console.log(this.name + this.poblacion)
+                axios
+                    .post("http://173.249.39.9:3000/api/crear", {
+                        name: this.username,
+                        poblacion: this.userpoblacion,
+                        saldo: this.usersaldo
+                    })
+                    .then(res => {
+                        this.username = "";
+                        this.userpoblacion = "";
+                        this.usersaldo = null;
+                        this.listar();
+                        console.log(res);
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+
+
+            }
+        }
+
+    })
+</script>
+
+</html>
